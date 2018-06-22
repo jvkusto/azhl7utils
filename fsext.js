@@ -117,6 +117,31 @@ class FsExt {
 			}
 		});
 	}
+
+	static readdir(folderPath, opts ) {
+		opts = opts || {};
+		opts['splitter'] = opts['splitter'] || '_';
+		let list = [],
+			ext = opts.ext || '.xml',
+			files = fs.existsSync(folderPath) && fs.readdirSync(folderPath).filter(f => f.indexOf('.')!=0 ) || [];
+
+		if (!files.length) {
+			return list;
+		}
+
+		files.forEach(function (file) {
+			let filePath = path.join(folderPath, file);
+
+			if (filePath.indexOf(ext)<0) {
+				list = list.concat(FsExt.readdir(filePath, {ext: ext}));
+			} else {
+				if(filePath.indexOf(ext)>0){
+					list.push(filePath);
+				}
+			}
+		});
+		return list;
+	}
 }
 
 module.exports = FsExt;
