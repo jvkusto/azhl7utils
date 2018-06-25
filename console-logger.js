@@ -6,11 +6,26 @@ const	path = require('path'),
 	util = require('util'),
 	NAME_SVC = path.join( process.env.NAME_SVC || 'svc' ),
 	localLogsDirectory = path.join( process.env.LOCAL_LOG_DIR || 'logs' ),
-	sharedLogsDirectory = path.join( process.env.LOG_DIR || '/efs/logs', NAME_SVC ),
-	LOG_INTERVAL_FLUSH_SEC = parseInt( process.env.LOG_INTERVAL_FLUSH_SEC || 300 ) * 1000;
+	sharedLogsDirectory = process.env.LOG_DIR ? path.join( process.env.LOG_DIR, NAME_SVC ) : '',
+	LOG_INTERVAL_FLUSH_SEC = parseInt( process.env.LOG_INTERVAL_FLUSH_SEC || 300 ) * 1000,
+	movedCachedLogs = async ()=>{
+		if( !sharedLogsDirectory ) {
+			return;
+		}
+		let logsFiles = fsext.readdir( localLogsDirectory, { ext: '.txt' } );
+		for( let f in logsFiles) {
+			let srcFile = logsFiles[f],
+				destFile = srcFile.replace(localLogsDirectory, sharedLogsDirectory);
+			await fsext.appendFileToFile(srcFile, destFile);
+			fs.unlinkSync(srcFile);
+		}
+	}
 
+let cancelCopyCachedLogs,
+	logStdout = process.stdout,
+	ips = [],
+	ip = ips.length>0 && ips[0].address || '' ;
 
-let ips = [];
 Object.keys(ifaces).forEach(function (ifname) {
 	let alias = 0;
 
@@ -31,55 +46,45 @@ Object.keys(ifaces).forEach(function (ifname) {
 		++alias;
 	});
 });
-let ip = ips.length>0 && ips[0].address || '' ;
 
-console.log('loaclLogsDirectory', localLogsDirectory);
+
+console.log('localLogsDirectory', localLogsDirectory);
 console.log('sharedLogsDirectory', sharedLogsDirectory);
 
 fsext.mkdirSync(localLogsDirectory);
 fsext.mkdirSync(sharedLogsDirectory);
 
-// Simple console logger
-// Or 'w' to truncate the file every time the process starts.
-let	logStdout = process.stdout;
-
 function noWriteLog(){
-	writeToLog(arguments, false)
+	writeToLog(arguments, false);
 };
 
 function writeLog(){
-	writeToLog(arguments, process.env.CONSOLE_OUT)
+	writeToLog(arguments, process.env.CONSOLE_OUT);
 };
 
 function writeToLog( arguments, onConsole ){
-
 	let d = new Date(),
 		logFileName = path.join(localLogsDirectory, `${NAME_SVC}_${d.toLocaleDateString()}_(${ip}).txt`);
-	n = d.toLocaleDateString() + ' ' + d.toLocaleTimeString() + '.' + ('0000'+d.getMilliseconds()).slice(-4) + ' ';
+	n = d.toLocaleDateString() + ' ' + d.toLocaleTimeString() + '.' + ('0000' + d.getMilliseconds()).slice(-4) + ' ';
 
-	fs.appendFileSync( logFileName, n + util.format.apply(null, arguments) + '\n');
+	fs.appendFileSync(logFileName, n + util.format.apply(null, arguments) + '\n');
 	onConsole && logStdout.write(n + util.format.apply(null, arguments) + '\n');
-};
 
+	if( sharedLogsDirectory ) {
+		// cancel prev timer for copy logs from local to shared folder.
+		if (cancelCopyCachedLogs) {
+			clearTimeout(cancelCopyCachedLogs);
+		}
+		cancelCopyCachedLogs = setTimeout(movedCachedLogs, LOG_INTERVAL_FLUSH_SEC);
+	}
+};
 
 console.error = writeLog;
 console.log = writeLog;
 console.info = writeLog;
-
 console.getIP = function(){ return ip; }
 
-async function movedCachedLogs(){
-	let logsFiles = fsext.readdir( localLogsDirectory, { ext: '.txt' } );
-	for( let f in logsFiles) {
-		let srcFile = logsFiles[f],
-			destFile = srcFile.replace(localLogsDirectory, sharedLogsDirectory);
-		await fsext.appendFileToFile(srcFile, destFile);
-		fs.unlinkSync(srcFile);
-	}
-}
-
 movedCachedLogs()
-setInterval(movedCachedLogs, LOG_INTERVAL_FLUSH_SEC);
 
 class Logger {}
 module.exports = Logger;
