@@ -23,8 +23,7 @@ const	path = require('path'),
 
 let cancelCopyCachedLogs,
 	logStdout = process.stdout,
-	ips = [],
-	ip = ips.length>0 && ips[0].address || '' ;
+	ips = [];
 
 Object.keys(ifaces).forEach(function (ifname) {
 	let alias = 0;
@@ -47,6 +46,7 @@ Object.keys(ifaces).forEach(function (ifname) {
 	});
 });
 
+const ip = ips.length>0 && ips[0].address || '' ;
 
 console.log('localLogsDirectory', localLogsDirectory);
 console.log('sharedLogsDirectory', sharedLogsDirectory);
