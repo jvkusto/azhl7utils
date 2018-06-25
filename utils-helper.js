@@ -4,13 +4,9 @@ const path = require('path'),
 	CSV_INFO_HEADER = [
 		'code',
 		'mode',
-		'protocol',
-		'method',
-		'path',
 		'client',
 		'historical',
 		'mtype',
-		'message',
 		'error',
 		'fileName',
 		'start',
@@ -18,10 +14,10 @@ const path = require('path'),
 		'time',
 		'rec_ip',
 		'sender_ip',
-		'outfile',
 		'msgid',
 		'count',
-		'ts'];
+		'ts'
+	];
 
 function formatNumberLength(num, length) {
 	let r = '' + num;
