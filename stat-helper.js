@@ -59,7 +59,7 @@ class StatHlper {
 		// Save info stat data to local file.
 		if (message) {
 			let text = CSV_INFO_HEADER.map( name => message[name] || '' ).join('|'),
-				infoFilePath = path.join(infoLocalDir, `${UtilsHelper.getFileNameTime( infoAppender )}_cnv_(${message.rec_ip || LOCAL_IP })${INFO_EXT}`);
+				infoFilePath = path.join(infoLocalDir, `${UtilsHelper.getFileNameTime( infoAppender )}_${NAME_SVC}_(${message.rec_ip || LOCAL_IP })${INFO_EXT}`);
 			fsExt.mkdirSync(infoLocalDir);
 			await fsExt.appendFile(infoFilePath, text + '\n');
 		}
@@ -73,7 +73,7 @@ class StatHlper {
 
 			// run movedCachedFiles if not runs long time.
 			if( Date.now() - prevCopyRunTime >= runInterval * 1000 ){
-				movedCachedFiles()
+				movedCachedFiles();
 				prevCopyRunTime = Date.now();
 			}
 		}
