@@ -1,25 +1,8 @@
 const path = require('path'),
 	fs = require('fs'),
-	fsExt = require('./fsext.js'),
-	CSV_INFO_HEADER = [
-		'code',
-		'mode',
-		'client',
-		'historical',
-		'mtype',
-		'error',
-		'fileName',
-		'start',
-		'end',
-		'time',
-		'rec_ip',
-		'sender_ip',
-		'msgid',
-		'count',
-		'ts'
-	];
+	fsExt = require('./fsext.js');
 
-function formatNumberLength(num, length) {
+	function formatNumberLength(num, length) {
 	let r = '' + num;
 	while (r.length < length) {
 		r = '0' + r;
@@ -28,9 +11,6 @@ function formatNumberLength(num, length) {
 };
 
 class UtilsHelper {
-	static getCsvHeader(){
-		return CSV_INFO_HEADER;
-	}
 
 	static formatNumberLength(num, length) {
 		return formatNumberLength(num, length);
@@ -104,11 +84,6 @@ class UtilsHelper {
 		}
 		return stop;
 	}
-
-	static getCSV(msg){
-		return UtilsHelper.getCsvHeader().map( name => msg[name] || '' ).join('|');
-	}
-
 }
 
 module.exports = UtilsHelper;
