@@ -45,6 +45,7 @@ class AzureHelper {
 		try {
 			await this.appendFile(blob_service, sourceFilePath, blobName, containerName);
 		}catch(err){
+			await this.createContainerIfNotExists(blob_service, containerName);
 			await this.createFile(blob_service, sourceFilePath, blobName, containerName);
 //			await this.appendFile(blob_service, sourceFilePath, blobName, containerName);
 		}
