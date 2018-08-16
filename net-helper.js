@@ -1,7 +1,7 @@
 const	os = require('os'),
 		ifaces = os.networkInterfaces();
 
-let ips = [];
+let ips = [], instNumber;
 
 Object.keys(ifaces).forEach(function (ifname) {
 	let alias = 0;
@@ -27,6 +27,16 @@ Object.keys(ifaces).forEach(function (ifname) {
 class NetHelper{
 	static getIP(){
 		return ips.length >0 && ips[0].address || '';
+	}
+
+	static getInstNumber(){
+		if( !instNumber){
+			let ip = NetHelper.getIP();
+			if(ip && ip.split('.').length >= 4){
+				instNumber = ip.split('.')[3];
+			}
+		}
+		return instNumber;
 	}
 }
 module.exports = NetHelper;

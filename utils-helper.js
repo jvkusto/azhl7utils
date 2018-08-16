@@ -29,7 +29,18 @@ class UtilsHelper {
 			+ formatNumberLength(fileIntervalSec > 0 ? d.getSeconds() - d.getSeconds() % fileIntervalSec : 0, 2)
 			+ (includeMSec ? formatNumberLength(d.getMilliseconds(), 3) : '');
 	}
-
+	
+	static getTimeToString( includeMSec ){
+		let d = new Date();
+		return (d.getFullYear())
+			+ formatNumberLength((d.getMonth() + 1), 2)
+			+ formatNumberLength(d.getDate(), 2)
+			+ formatNumberLength(d.getHours(), 2)
+			+ formatNumberLength(d.getMinutes(), 2)
+			+ formatNumberLength(d.getSeconds(), 2)
+			+ (includeMSec ? formatNumberLength(d.getMilliseconds(), 3) : '');
+	}
+	
 	static readdir(folderPath, opts ) {
 		return fsExt.readdir(folderPath, opts );
 	}
