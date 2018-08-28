@@ -42,13 +42,16 @@ class AzureHelper {
 
 	async writeFile(blob_service, sourceFilePath, blobName, containerName ){
 		containerName = containerName || CLOUD_ERROR;
+		let result = '';
 		try {
-			await this.appendFile(blob_service, sourceFilePath, blobName, containerName);
+			result = await this.appendFile(blob_service, sourceFilePath, blobName, containerName);
+			console.log('Append', result);
 		}catch(err){
-			await this.createContainerIfNotExists(blob_service, containerName);
-			await this.createFile(blob_service, sourceFilePath, blobName, containerName);
+			result = await this.createFile(blob_service, sourceFilePath, blobName, containerName);
 //			await this.appendFile(blob_service, sourceFilePath, blobName, containerName);
+			console.log('Creating', result);
 		}
+		return result;
 	};
 
 	createFile(blob_service, sourceFilePath, blobName, containerName ){
